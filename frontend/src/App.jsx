@@ -8,10 +8,9 @@ import Complaint from "./pages/Complaint";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-zinc-950">
       <BrowserRouter>
         <Routes>
-
           {/* Auth */}
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -22,7 +21,6 @@ function App() {
           {/* Public (Passenger) */}
           <Route path="/scan/:id" element={<ScanPage />} />
           <Route path="/complaint/:id" element={<Complaint />} />
-
         </Routes>
       </BrowserRouter>
     </div>

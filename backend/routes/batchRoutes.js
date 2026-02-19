@@ -1,38 +1,63 @@
 const express = require("express");
 const router = express.Router();
-const Batch = require("./Models/Batch");
+const Batch = require("../Models/Batch");
 const QRCode = require("qrcode");
-const protect = require("../middleware/authMiddleware");
+const protect = require("../Middlewares/authMiddleware");
 
 // Create batch
 router.post("/create", protect, async (req, res) => {
-    const { foodName, preparedAt, expiryTime, hygieneStatus, trainNumber } = req.body;
+    try {
+        const { foodName, preparedAt, expiryTime, hygieneStatus, trainNumber } = req.body;
 
-    const batch = new Batch({
-        foodName,
-        vendorId: req.user.id,
-        preparedAt,
-        expiryTime,
-        hygieneStatus,
-        trainNumber
-    });
+        if (!foodName || !preparedAt || !expiryTime || !trainNumber) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
-    const savedBatch = await batch.save();
+        const batch = new Batch({
+            foodName,
+            vendorId: req.user.id,
+            preparedAt,
+            expiryTime,
+            hygieneStatus: hygieneStatus || "good",
+            trainNumber
+        });
 
-    // Generate QR (contains batch ID)
-    const qr = await QRCode.toDataURL(savedBatch._id.toString());
+        const savedBatch = await batch.save();
 
-    savedBatch.qrCode = qr;
-    await savedBatch.save();
+        // Generate QR code containing the scan URL
+        const scanUrl = `${process.env.FRONTEND_URL || "http://localhost:5173"}/scan/${savedBatch._id}`;
+        const qr = await QRCode.toDataURL(scanUrl);
 
-    res.json(savedBatch);
+        savedBatch.qrCode = qr;
+        await savedBatch.save();
+
+        res.status(201).json(savedBatch);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// Get all batches by vendor
+router.get("/my", protect, async (req, res) => {
+    try {
+        const batches = await Batch.find({ vendorId: req.user.id }).sort({ createdAt: -1 });
+        res.json(batches);
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 // Get batch by ID (for QR scan)
 router.get("/:id", async (req, res) => {
-    const batch = await Batch.findById(req.params.id).populate("vendorId", "name");
-
-    res.json(batch);
+    try {
+        const batch = await Batch.findById(req.params.id).populate("vendorId", "name email");
+        if (!batch) return res.status(404).json({ message: "Batch not found" });
+        res.json(batch);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 module.exports = router;

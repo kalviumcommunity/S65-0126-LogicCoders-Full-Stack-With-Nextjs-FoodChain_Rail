@@ -1,24 +1,50 @@
 const express = require("express");
 const router = express.Router();
-const Complaint = require("./Models/Complaint");
+const Complaint = require("../Models/Complaint");
 
-// Create complaint
+// Create complaint (public - passengers can report)
 router.post("/create", async (req, res) => {
-    const { batchId, issue } = req.body;
+    try {
+        const { batchId, issue, passengerName, trainCoach } = req.body;
 
-    const complaint = await Complaint.create({
-        batchId,
-        issue
-    });
+        if (!batchId || !issue) {
+            return res.status(400).json({ message: "Batch ID and issue are required" });
+        }
 
-    res.json(complaint);
+        const complaint = await Complaint.create({
+            batchId,
+            issue,
+            passengerName: passengerName || "Anonymous",
+            trainCoach: trainCoach || ""
+        });
+
+        res.status(201).json({ message: "Complaint submitted successfully", complaint });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+// Get complaints by batch ID
+router.get("/batch/:batchId", async (req, res) => {
+    try {
+        const complaints = await Complaint.find({ batchId: req.params.batchId }).sort({ createdAt: -1 });
+        res.json(complaints);
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 // Get all complaints (admin)
 router.get("/", async (req, res) => {
-    const complaints = await Complaint.find().populate("batchId");
-
-    res.json(complaints);
+    try {
+        const complaints = await Complaint.find()
+            .populate("batchId", "foodName trainNumber")
+            .sort({ createdAt: -1 });
+        res.json(complaints);
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 module.exports = router;

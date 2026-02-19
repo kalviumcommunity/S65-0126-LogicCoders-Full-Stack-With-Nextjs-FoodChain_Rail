@@ -1,45 +1,86 @@
 const express = require("express");
 const router = express.Router();
-const User = require("./Models/User");
+const User = require("../Models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 // Register
 router.post("/register", async (req, res) => {
-    const { name, email, password, role } = req.body;
+    try {
+        const { name, email, password, role } = req.body;
 
-    const hashed = await bcrypt.hash(password, 10);
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "All fields are required" });
+        }
 
-    const user = await User.create({
-        name,
-        email,
-        password: hashed,
-        role
-    });
+        const existing = await User.findOne({ email });
+        if (existing) return res.status(400).json({ message: "Email already registered" });
 
-    res.json(user);
+        const hashed = await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+            name,
+            email,
+            password: hashed,
+            role: role || "vendor"
+        });
+
+        res.status(201).json({ message: "Registered successfully", user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 // Login
 router.post("/login", async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password required" });
+        }
 
-    if (!user) return res.status(400).json({ message: "User not found" });
+        const user = await User.findOne({ email });
+        if (!user) return res.status(400).json({ message: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    if (!isMatch) return res.status(400).json({ message: "Wrong password" });
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            process.env.JWT_SECRET,
+            { expiresIn: "7d" }
+        );
 
-    const token = jwt.sign(
-        { id: user._id, role: user.role },
-        process.env.JWT_SECRET
-    );
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
 
-    res.cookie("token", token, { httpOnly: true });
+        res.json({ message: "Login successful", user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
 
-    res.json(user);
+// Logout
+router.post("/logout", (req, res) => {
+    res.clearCookie("token");
+    res.json({ message: "Logged out" });
+});
+
+// Get current user
+router.get("/me", require("../Middlewares/authMiddleware"), async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password");
+        res.json(user);
+    } catch (err) {
+        res.status(500).json({ message: "Server error" });
+    }
 });
 
 module.exports = router;
