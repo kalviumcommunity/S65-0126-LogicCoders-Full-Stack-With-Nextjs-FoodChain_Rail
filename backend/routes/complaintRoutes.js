@@ -5,7 +5,7 @@ const Complaint = require("../Models/Complaint");
 // Create complaint (public - passengers can report)
 router.post("/create", async (req, res) => {
     try {
-        const { batchId, issue, passengerName, trainCoach } = req.body;
+        const { batchId, issue, category, rating, passengerName, trainCoach } = req.body;
 
         if (!batchId || !issue) {
             return res.status(400).json({ message: "Batch ID and issue are required" });
@@ -14,6 +14,8 @@ router.post("/create", async (req, res) => {
         const complaint = await Complaint.create({
             batchId,
             issue,
+            category: category || "general",
+            rating: rating ? Number(rating) : null,
             passengerName: passengerName || "Anonymous",
             trainCoach: trainCoach || ""
         });

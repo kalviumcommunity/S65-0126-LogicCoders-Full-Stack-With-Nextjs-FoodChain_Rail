@@ -7,7 +7,7 @@ const protect = require("../Middlewares/authMiddleware");
 // Create batch
 router.post("/create", protect, async (req, res) => {
     try {
-        const { foodName, preparedAt, expiryTime, hygieneStatus, trainNumber } = req.body;
+        const { foodName, category, kitchenLocation, ingredients, preparedAt, expiryTime, trainNumber } = req.body;
 
         if (!foodName || !preparedAt || !expiryTime || !trainNumber) {
             return res.status(400).json({ message: "All fields are required" });
@@ -16,9 +16,11 @@ router.post("/create", protect, async (req, res) => {
         const batch = new Batch({
             foodName,
             vendorId: req.user.id,
+            category: category || "veg",
+            kitchenLocation: kitchenLocation || "",
+            ingredients: ingredients || "",
             preparedAt,
             expiryTime,
-            hygieneStatus: hygieneStatus || "good",
             trainNumber
         });
 

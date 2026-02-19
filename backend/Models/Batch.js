@@ -10,6 +10,19 @@ const batchSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    category: {
+        type: String,
+        enum: ["veg", "non-veg", "egg"],
+        default: "veg"
+    },
+    kitchenLocation: {
+        type: String,
+        default: ""
+    },
+    ingredients: {
+        type: String,
+        default: ""
+    },
     preparedAt: {
         type: Date,
         required: true
@@ -17,11 +30,6 @@ const batchSchema = new mongoose.Schema({
     expiryTime: {
         type: Date,
         required: true
-    },
-    hygieneStatus: {
-        type: String,
-        enum: ["good", "average", "bad"],
-        default: "good"
     },
     trainNumber: {
         type: String,
