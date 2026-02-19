@@ -21,7 +21,7 @@ function Navbar() {
     } catch (err) {
       console.log("Logout Error :",err);
     }
-    navigate("/");
+    navigate("/login");
   };
 
   const navLink = (to, label, Icon) => {

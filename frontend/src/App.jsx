@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CreateBatch from "./pages/CreateBatch";
@@ -12,8 +13,11 @@ function App() {
     <div className="min-h-screen bg-zinc-950">
       <BrowserRouter>
         <Routes>
+          {/* Landing */}
+          <Route path="/" element={<Home />} />
+
           {/* Auth */}
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
           {/* Vendor */}

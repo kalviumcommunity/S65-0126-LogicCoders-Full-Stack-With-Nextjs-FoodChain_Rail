@@ -18,7 +18,7 @@ function Register() {
     setLoading(true);
     try {
       await axios.post("http://localhost:5000/api/auth/register", { name, email, password, role: "vendor" }, { withCredentials: true });
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
@@ -111,7 +111,7 @@ function Register() {
           {/* Desktop back link */}
           <div className="hidden lg:block mb-5">
             <Link
-              to="/"
+              to="/login"
               className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-amber-400 text-sm font-medium transition-colors group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
@@ -191,7 +191,7 @@ function Register() {
             <div className="mt-7 pt-6 border-t border-zinc-800/60 text-center">
               <p className="text-zinc-600 text-sm">
                 Already have an account?{" "}
-                <Link to="/" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors">
+                <Link to="/login" className="text-amber-400 hover:text-amber-300 font-semibold transition-colors">
                   Sign in
                 </Link>
               </p>
