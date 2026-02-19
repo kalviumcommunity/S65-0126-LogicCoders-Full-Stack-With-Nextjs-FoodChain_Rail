@@ -4,9 +4,11 @@ import axios from "axios";
 
 function CreateBatch() {
   const [foodName, setFoodName] = useState("");
+  const [category, setCategory] = useState("veg");
+  const [kitchenLocation, setKitchenLocation] = useState("");
+  const [ingredients, setIngredients] = useState("");
   const [preparedAt, setPreparedAt] = useState("");
   const [expiryTime, setExpiryTime] = useState("");
-  const [hygieneStatus, setHygieneStatus] = useState("good");
   const [trainNumber, setTrainNumber] = useState("");
   const [qr, setQr] = useState("");
   const [batchId, setBatchId] = useState("");
@@ -22,9 +24,11 @@ function CreateBatch() {
     try {
       const res = await axios.post("http://localhost:5000/api/batch/create", {
         foodName,
+        category,
+        kitchenLocation,
+        ingredients,
         preparedAt,
         expiryTime,
-        hygieneStatus,
         trainNumber,
       }, { withCredentials: true });
 
@@ -32,9 +36,11 @@ function CreateBatch() {
       setBatchId(res.data._id);
       setSuccess(true);
       setFoodName("");
+      setCategory("veg");
+      setKitchenLocation("");
+      setIngredients("");
       setPreparedAt("");
       setExpiryTime("");
-      setHygieneStatus("good");
       setTrainNumber("");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create batch. Please try again.");
@@ -42,12 +48,6 @@ function CreateBatch() {
       setLoading(false);
     }
   };
-
-  const hygieneOptions = [
-    { value: "good", label: "Good", color: "text-emerald-400" },
-    { value: "average", label: "Average", color: "text-amber-400" },
-    { value: "bad", label: "Bad", color: "text-red-400" },
-  ];
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -90,6 +90,57 @@ function CreateBatch() {
                 />
               </div>
 
+              {/* Category */}
+              <div className="md:col-span-2">
+                <label className="text-zinc-400 text-xs font-medium uppercase tracking-wider mb-1.5 block">Food Category</label>
+                <div className="flex gap-3">
+                  {[("veg"), ("non-veg"), ("egg")].map((cat) => {
+                    const colors = {
+                      veg: "border-emerald-500 bg-emerald-500/10 text-emerald-400",
+                      "non-veg": "border-red-500 bg-red-500/10 text-red-400",
+                      egg: "border-amber-500 bg-amber-500/10 text-amber-400"
+                    };
+                    const inactive = "border-zinc-700 bg-zinc-800 text-zinc-500 hover:border-zinc-600";
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => setCategory(cat)}
+                        className={`flex-1 py-2.5 rounded-xl border text-sm font-medium capitalize transition-all ${
+                          category === cat ? colors[cat] : inactive
+                        }`}
+                      >
+                        {cat === "veg" ? "🟢 Veg" : cat === "non-veg" ? "🔴 Non-Veg" : "🟡 Egg"}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Kitchen Location */}
+              <div className="md:col-span-2">
+                <label className="text-zinc-400 text-xs font-medium uppercase tracking-wider mb-1.5 block">Kitchen / Station Name</label>
+                <input
+                  type="text"
+                  placeholder="e.g. New Delhi Railway Station Kitchen, Pantry Car"
+                  value={kitchenLocation}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
+                  onChange={(e) => setKitchenLocation(e.target.value)}
+                />
+              </div>
+
+              {/* Ingredients */}
+              <div className="md:col-span-2">
+                <label className="text-zinc-400 text-xs font-medium uppercase tracking-wider mb-1.5 block">Ingredients / Allergens</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Rice, Spices, Onion, Milk (no nuts)"
+                  value={ingredients}
+                  className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
+                  onChange={(e) => setIngredients(e.target.value)}
+                />
+              </div>
+
               {/* Prepared At */}
               <div>
                 <label className="text-zinc-400 text-xs font-medium uppercase tracking-wider mb-1.5 block">Prepared At</label>
@@ -112,20 +163,6 @@ function CreateBatch() {
                   onChange={(e) => setExpiryTime(e.target.value)}
                   required
                 />
-              </div>
-
-              {/* Hygiene Status */}
-              <div>
-                <label className="text-zinc-400 text-xs font-medium uppercase tracking-wider mb-1.5 block">Hygiene Status</label>
-                <select
-                  value={hygieneStatus}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
-                  onChange={(e) => setHygieneStatus(e.target.value)}
-                >
-                  {hygieneOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                  ))}
-                </select>
               </div>
 
               {/* Train Number */}

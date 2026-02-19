@@ -29,6 +29,12 @@ function Navbar() {
       {/* Actions */}
       <div className="flex items-center gap-4">
         <Link
+          to="/dashboard"
+          className="text-zinc-400 hover:text-amber-400 text-sm font-medium transition-colors duration-200"
+        >
+          Dashboard
+        </Link>
+        <Link
           to="/create-batch"
           className="text-zinc-400 hover:text-amber-400 text-sm font-medium transition-colors duration-200"
         >
