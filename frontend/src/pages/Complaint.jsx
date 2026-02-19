@@ -1,7 +1,8 @@
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 function Complaint() {
   const { id } = useParams();
@@ -36,11 +37,19 @@ function Complaint() {
       <Navbar />
 
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-red-500/3 rounded-full blur-3xl" />
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-red-500/4 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-red-500/3 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-lg mx-auto px-4 py-10">
         <div className="mb-8">
+          <Link
+            to={`/scan/${id}`}
+            className="inline-flex items-center gap-1.5 text-zinc-500 hover:text-amber-400 text-sm font-medium mb-4 transition-colors group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform" />
+            Back to Scan Page
+          </Link>
           <h1 className="text-white text-2xl font-bold tracking-tight">
             Report a <span className="text-red-400">Complaint</span>
           </h1>
@@ -48,17 +57,15 @@ function Complaint() {
         </div>
 
         {submitted ? (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-10 text-center shadow-2xl">
+          <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-3xl p-10 text-center shadow-2xl ring-1 ring-white/5">
             <div className="w-16 h-16 bg-emerald-500/10 border border-emerald-500/30 rounded-full flex items-center justify-center mx-auto mb-5">
-              <svg className="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
+              <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
-            <h3 className="text-white text-lg font-semibold mb-2">Complaint Submitted</h3>
+            <h3 className="text-white text-xl font-bold mb-2">Complaint Submitted</h3>
             <p className="text-zinc-500 text-sm">Your complaint has been registered. Our team will review it shortly.</p>
           </div>
         ) : (
-          <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-8 shadow-2xl">
+          <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-3xl p-8 shadow-2xl ring-1 ring-white/5">
             {error && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl p-3 mb-6">
                 {error}
@@ -72,7 +79,7 @@ function Complaint() {
                   type="text"
                   placeholder="e.g. Priya Sharma"
                   value={passengerName}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
+                  className="w-full bg-zinc-800/70 border border-zinc-700/80 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/80 focus:bg-zinc-800 focus:ring-1 focus:ring-amber-400/25 transition-all"
                   onChange={(e) => setPassengerName(e.target.value)}
                 />
               </div>
@@ -83,7 +90,7 @@ function Complaint() {
                   type="text"
                   placeholder="e.g. S4, B2, A1"
                   value={trainCoach}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all"
+                  className="w-full bg-zinc-800/70 border border-zinc-700/80 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/80 focus:bg-zinc-800 focus:ring-1 focus:ring-amber-400/25 transition-all"
                   onChange={(e) => setTrainCoach(e.target.value)}
                 />
               </div>
@@ -94,7 +101,7 @@ function Complaint() {
                   placeholder="Please describe the food quality issue in detail..."
                   value={issue}
                   rows={5}
-                  className="w-full bg-zinc-800 border border-zinc-700 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400/30 transition-all resize-none"
+                  className="w-full bg-zinc-800/70 border border-zinc-700/80 text-white placeholder-zinc-600 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-amber-400/80 focus:bg-zinc-800 focus:ring-1 focus:ring-amber-400/25 transition-all resize-none"
                   onChange={(e) => setIssue(e.target.value)}
                   required
                 />
@@ -103,7 +110,7 @@ function Complaint() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-red-500 hover:bg-red-400 disabled:bg-red-500/50 text-white font-bold py-3.5 rounded-xl transition-all duration-200 text-sm tracking-wide"
+                className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-400 hover:to-red-500 disabled:from-red-500/40 disabled:to-red-600/40 text-white font-bold py-3.5 rounded-xl transition-all duration-200 text-sm tracking-wide shadow-lg shadow-red-500/20"
               >
                 {loading ? "Submitting..." : "Submit Complaint"}
               </button>

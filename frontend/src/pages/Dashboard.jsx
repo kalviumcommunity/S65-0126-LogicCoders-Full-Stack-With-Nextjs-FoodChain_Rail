@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../components/Navbar";
+import { Package, CheckCircle2, Clock, MessageSquare, Star, ExternalLink, Plus, AlertCircle, Thermometer, ShieldAlert, Search, ShoppingCart } from "lucide-react";
 
 function Dashboard() {
   const [batches, setBatches] = useState([]);
@@ -31,9 +32,9 @@ function Dashboard() {
   const expiredBatches = batches.filter((b) => new Date(b.expiryTime) <= now);
 
   // Complaints for this vendor's batches
-  const myBatchIds = new Set(batches.map((b) => b._id));
+  const myBatchIds = new Set(batches.map((b) => b._id.toString()));
   const myComplaints = complaints.filter(
-    (c) => c.batchId && myBatchIds.has(c.batchId._id || c.batchId)
+    (c) => c.batchId && myBatchIds.has((c.batchId._id || c.batchId).toString())
   );
 
   const ratingsOnly = myComplaints.filter((c) => c.rating != null);
@@ -64,16 +65,11 @@ function Dashboard() {
   };
 
   const statCards = [
-    { label: "Total Batches", value: batches.length, color: "text-amber-400", icon: "📦" },
-    { label: "Active Batches", value: activeBatches.length, color: "text-emerald-400", icon: "✅" },
-    { label: "Expired Batches", value: expiredBatches.length, color: "text-red-400", icon: "⏰" },
-    { label: "Total Feedback", value: myComplaints.length, color: "text-blue-400", icon: "💬" },
-    {
-      label: "Avg. Rating",
-      value: avgRating ? `${avgRating} / 5` : "—",
-      color: "text-amber-400",
-      icon: "⭐",
-    },
+    { label: "Total Batches", value: batches.length, color: "text-amber-400", iconBg: "bg-amber-400/10 text-amber-400", icon: <Package className="w-5 h-5" />, stripColor: "bg-amber-400" },
+    { label: "Active Batches", value: activeBatches.length, color: "text-emerald-400", iconBg: "bg-emerald-400/10 text-emerald-400", icon: <CheckCircle2 className="w-5 h-5" />, stripColor: "bg-emerald-400" },
+    { label: "Expired Batches", value: expiredBatches.length, color: "text-red-400", iconBg: "bg-red-400/10 text-red-400", icon: <Clock className="w-5 h-5" />, stripColor: "bg-red-400" },
+    { label: "Total Feedback", value: myComplaints.length, color: "text-blue-400", iconBg: "bg-blue-400/10 text-blue-400", icon: <MessageSquare className="w-5 h-5" />, stripColor: "bg-blue-400" },
+    { label: "Avg. Rating", value: avgRating ? `${avgRating} / 5` : "—", color: "text-amber-400", iconBg: "bg-amber-400/10 text-amber-400", icon: <Star className="w-5 h-5" />, stripColor: "bg-gradient-to-r from-amber-400 to-amber-600" },
   ];
 
   return (
@@ -81,23 +77,29 @@ function Dashboard() {
       <Navbar />
 
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-amber-400/3 rounded-full blur-3xl" />
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-amber-400/5 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 right-0 w-96 h-96 bg-blue-500/3 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-400/3 rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-5xl mx-auto px-4 py-10">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-start justify-between mb-10">
           <div>
-            <h1 className="text-white text-2xl font-bold tracking-tight">
+            <p className="text-zinc-600 text-xs font-semibold uppercase tracking-widest mb-1">
+              {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            </p>
+            <h1 className="text-white text-3xl font-bold tracking-tight">
               Vendor <span className="text-amber-400">Dashboard</span>
             </h1>
-            <p className="text-zinc-500 text-sm mt-1">Track your food batches, ratings, and feedback</p>
+            <p className="text-zinc-500 text-sm mt-1.5">Track food batches, ratings, and passenger feedback</p>
           </div>
           <Link
             to="/create-batch"
-            className="bg-amber-400 hover:bg-amber-300 text-zinc-950 font-bold text-sm px-5 py-2.5 rounded-xl transition-all"
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-zinc-950 font-bold text-sm px-5 py-3 rounded-xl transition-all shadow-lg shadow-amber-400/20 hover:shadow-amber-400/30 shrink-0"
           >
-            + New Batch
+            <Plus className="w-4 h-4" />
+            New Batch
           </Link>
         </div>
 
@@ -109,21 +111,28 @@ function Dashboard() {
         ) : (
           <>
             {/* Stat Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-10">
               {statCards.map((s) => (
-                <div key={s.label} className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 text-center">
-                  <div className="text-2xl mb-1">{s.icon}</div>
-                  <div className={`text-2xl font-bold ${s.color}`}>{s.value}</div>
-                  <div className="text-zinc-500 text-xs mt-0.5">{s.label}</div>
+                <div key={s.label} className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 group ring-1 ring-zinc-900">
+                  {/* Colored top accent strip */}
+                  <div className={`h-0.5 w-full ${s.stripColor}`} />
+                  <div className="p-4 text-center">
+                    <div className={`w-10 h-10 rounded-xl ${s.iconBg} flex items-center justify-center mx-auto mb-3`}>{s.icon}</div>
+                    <div className={`text-2xl font-bold tracking-tight tabular-nums ${s.color}`}>{s.value}</div>
+                    <div className="text-zinc-500 text-xs mt-1 font-medium">{s.label}</div>
+                  </div>
                 </div>
               ))}
             </div>
 
             {/* Batches Table */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl mb-8">
-              <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
-                <h2 className="text-white font-semibold text-sm">My Food Batches</h2>
-                <span className="text-zinc-500 text-xs">{batches.length} total</span>
+            <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl shadow-black/30 mb-8 ring-1 ring-zinc-900">
+              <div className="px-6 py-4 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-800/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 bg-amber-400 rounded-full" />
+                  <h2 className="text-white font-bold text-sm tracking-tight">My Food Batches</h2>
+                </div>
+                <span className="text-zinc-500 text-xs bg-zinc-800 px-2.5 py-1 rounded-lg">{batches.length} total</span>
               </div>
 
               {batches.length === 0 ? (
@@ -137,7 +146,7 @@ function Dashboard() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-zinc-800">
+                      <tr className="border-b border-zinc-800/80 bg-zinc-800/30">
                         <th className="text-left text-zinc-500 text-xs uppercase tracking-wider px-6 py-3">Food</th>
                         <th className="text-left text-zinc-500 text-xs uppercase tracking-wider px-4 py-3">Category</th>
                         <th className="text-left text-zinc-500 text-xs uppercase tracking-wider px-4 py-3">Train</th>
@@ -149,12 +158,13 @@ function Dashboard() {
                     <tbody>
                       {batches.map((b) => {
                         const expired = new Date(b.expiryTime) <= now;
-                        const catIcon = b.category === "non-veg" ? "🔴" : b.category === "egg" ? "🟡" : "🟢";
+                        const catDotColor = b.category === "non-veg" ? "bg-red-400" : b.category === "egg" ? "bg-amber-400" : "bg-emerald-400";
+                        const catLabel = b.category === "non-veg" ? "Non-Veg" : b.category === "egg" ? "Egg" : "Veg";
                         const feedbackCount = myComplaints.filter(
                           (c) => (c.batchId?._id || c.batchId) === b._id
                         ).length;
                         return (
-                          <tr key={b._id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                          <tr key={b._id} className="border-b border-zinc-800/40 hover:bg-zinc-800/40 transition-all group">
                             <td className="px-6 py-4">
                               <div className="text-white font-medium">{b.foodName}</div>
                               {b.kitchenLocation && (
@@ -162,7 +172,10 @@ function Dashboard() {
                               )}
                             </td>
                             <td className="px-4 py-4">
-                              <span className="text-xs">{catIcon} {b.category || "veg"}</span>
+                              <span className="inline-flex items-center gap-1.5 text-xs text-zinc-300">
+                                <span className={`w-2 h-2 rounded-full shrink-0 ${catDotColor}`} />
+                                {catLabel}
+                              </span>
                             </td>
                             <td className="px-4 py-4">
                               <span className="text-zinc-300 bg-zinc-800 px-2 py-1 rounded-lg text-xs font-medium">{b.trainNumber}</span>
@@ -181,14 +194,14 @@ function Dashboard() {
                               )}
                             </td>
                             <td className="px-4 py-4">
-                              <a
-                                href={`http://localhost:5173/scan/${b._id}`}
+                              <Link
+                                to={`/scan/${b._id}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="text-amber-400 hover:text-amber-300 text-xs transition-colors"
+                                className="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 text-xs transition-colors"
                               >
-                                View →
-                              </a>
+                                View <ExternalLink className="w-3 h-3" />
+                              </Link>
                             </td>
                           </tr>
                         );
@@ -200,10 +213,13 @@ function Dashboard() {
             </div>
 
             {/* Recent Feedback */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl">
-              <div className="px-6 py-4 border-b border-zinc-800 flex items-center justify-between">
-                <h2 className="text-white font-semibold text-sm">Recent Feedback & Complaints</h2>
-                <span className="text-zinc-500 text-xs">{myComplaints.length} total</span>
+            <div className="bg-zinc-900/80 border border-zinc-800/80 rounded-2xl overflow-hidden shadow-2xl shadow-black/30 ring-1 ring-zinc-900">
+              <div className="px-6 py-4 border-b border-zinc-800/80 flex items-center justify-between bg-zinc-800/20">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-4 bg-blue-400 rounded-full" />
+                  <h2 className="text-white font-bold text-sm tracking-tight">Recent Feedback & Complaints</h2>
+                </div>
+                <span className="text-zinc-500 text-xs bg-zinc-800 px-2.5 py-1 rounded-lg">{myComplaints.length} total</span>
               </div>
 
               {myComplaints.length === 0 ? (
@@ -213,16 +229,18 @@ function Dashboard() {
               ) : (
                 <div className="divide-y divide-zinc-800/50">
                   {myComplaints.slice(0, 10).map((c) => (
-                    <div key={c._id} className="px-6 py-4 flex items-start justify-between gap-4">
+                    <div key={c._id} className="px-6 py-4 flex items-start justify-between gap-4 hover:bg-zinc-800/30 transition-colors border-l-2 border-l-transparent hover:border-l-blue-400/50">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className={`text-xs px-2 py-0.5 rounded-full border ${getCategoryColor(c.category)}`}>
                             {categoryLabels[c.category] || "General"}
                           </span>
                           {c.rating && (
-                            <span className="text-amber-400 text-xs flex items-center gap-0.5">
-                              {"★".repeat(c.rating)}{"☆".repeat(5 - c.rating)}
-                              <span className="text-zinc-500 ml-1">{c.rating}/5</span>
+                            <span className="flex items-center gap-0.5">
+                              {Array.from({ length: 5 }, (_, i) => (
+                                <Star key={i} className={`w-3 h-3 ${i < c.rating ? "fill-amber-400 text-amber-400" : "text-zinc-700"}`} />
+                              ))}
+                              <span className="text-zinc-500 ml-1 text-xs">{c.rating}/5</span>
                             </span>
                           )}
                           {c.passengerName && c.passengerName !== "Anonymous" && (
